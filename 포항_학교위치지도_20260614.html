@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>포항 학교 위치 지도 — 경상북도교육청 안전진단 2026</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic',sans-serif;background:#f0f2f5;}
+#container{display:flex;height:100vh;}
+#sidebar{width:290px;background:#fff;border-right:1px solid #ddd;display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;}
+#sidebar-header{background:#1a3a5c;color:#fff;padding:12px 14px;}
+#sidebar-header h1{font-size:13px;line-height:1.5;margin-bottom:4px;}
+#sidebar-header .sub{font-size:10px;color:#90bde0;}
+#controls{padding:10px 12px;border-bottom:1px solid #eee;}
+.stats{background:#f8f9fa;border-radius:4px;padding:7px 10px;font-size:11px;color:#555;margin-bottom:10px;}
+.stats strong{color:#1a3a5c;}
+.filter-title{font-size:10px;font-weight:bold;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
+.btn-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;}
+.btn{padding:4px 8px;font-size:11px;border:1px solid #ccc;border-radius:3px;cursor:pointer;background:#fff;font-family:'Malgun Gothic',sans-serif;color:#444;}
+.btn.active{background:#1a3a5c;color:#fff;border-color:#1a3a5c;}
+.btn:hover:not(.active){background:#f0f4f8;}
+.legend{margin-top:2px;}
+.legend-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:11px;color:#444;}
+.dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,0.15);}
+#school-list-wrap{flex:1;overflow-y:auto;padding:0 12px 12px;}
+.list-header{font-size:10px;font-weight:bold;color:#888;text-transform:uppercase;padding:8px 0 5px;position:sticky;top:0;background:#fff;}
+.s-item{padding:7px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;}
+.s-item:hover .s-name{color:#1a8be0;}
+.s-name{font-size:12px;font-weight:bold;color:#2c3e50;margin-bottom:2px;}
+.s-meta{font-size:10px;color:#888;line-height:1.4;}
+.badge{display:inline-block;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:bold;color:#fff;margin-right:3px;}
+.w1{background:#2196F3;}
+.w2{background:#FF9800;}
+.w3{background:#27AE60;}
+.remote{color:#c0392b;font-weight:bold;}
+.alert-box{background:#fff3cd;border:1px solid #ffc107;border-radius:4px;padding:7px 10px;font-size:11px;color:#856404;margin-bottom:10px;}
+#map{flex:1;}
+</style>
+</head>
+<body>
+<div id="container">
+  <div id="sidebar">
+    <div id="sidebar-header">
+      <h1>📍 포항 학교 위치 지도<br>경상북도교육청 안전진단</h1>
+      <div class="sub">점검기간: 2026. 6/22(월) ~ 7/10(금)</div>
+    </div>
+    <div id="controls">
+      <div class="stats">
+        총 <strong id="total-cnt">64</strong>개교 표시 &nbsp;|&nbsp; 점검일 총 <strong>17일</strong>
+      </div>
+
+      <div class="filter-title">주차별 필터</div>
+      <div class="btn-row">
+        <button class="btn active" id="btn-all-w" onclick="setWeek('all')">전체</button>
+        <button class="btn" id="btn-w1" onclick="setWeek('w1')">1주 (6/22–6/27)</button>
+        <button class="btn" id="btn-w2" onclick="setWeek('w2')">2주 (6/29–7/4)</button>
+        <button class="btn" id="btn-w3" onclick="setWeek('w3')">3주 (7/6–7/10)</button>
+      </div>
+
+      <div class="filter-title">구역별 필터</div>
+      <div class="btn-row">
+        <button class="btn active" id="btn-all-z" onclick="setZone('all')">전체</button>
+        <button class="btn" id="btn-z1" onclick="setZone('북구시내')">북구 시내</button>
+        <button class="btn" id="btn-z2" onclick="setZone('흥해읍')">흥해읍</button>
+        <button class="btn" id="btn-z3" onclick="setZone('남구')">남구</button>
+        <button class="btn" id="btn-z4" onclick="setZone('원거리')">원거리</button>
+      </div>
+
+      <div class="legend">
+        <div class="filter-title">범례</div>
+        <div class="legend-row"><div class="dot" style="background:#2196F3"></div>1주차 (6/22–6/27)</div>
+        <div class="legend-row"><div class="dot" style="background:#FF9800"></div>2주차 (6/29–7/4)</div>
+        <div class="legend-row"><div class="dot" style="background:#27AE60"></div>3주차 (7/6–7/10)</div>
+        <div class="legend-row"><div class="dot" style="background:#9C27B0;border:2px solid #6a1b9a;"></div>원거리 학교 (별도 이동 필요)</div>
+        <div class="legend-row"><div style="font-size:16px;line-height:1;">🏨</div>추천 거점 호텔 위치</div>
+      </div>
+    </div>
+
+    <div id="school-list-wrap">
+      <div class="list-header">학교 목록 <span id="list-cnt"></span></div>
+      <div id="school-list"></div>
+    </div>
+  </div>
+  <div id="map"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const schools = [
+  // ===== 1주차 =====
+  // 6/22 — 흥해읍 집중일
+  {n:"한동글로벌학교",         a:"포항시 북구 흥해읍 한동로 558",               lat:36.127, lng:129.358, d:"6/22", w:"w1", z:"흥해읍",   lv:"각종학교"},
+  {n:"포항예술고등학교",        a:"포항시 북구 흥해읍 연화길 56",                lat:36.120, lng:129.344, d:"6/22", w:"w1", z:"흥해읍",   lv:"고등학교"},
+  {n:"포항흥해공업고등학교",     a:"포항시 북구 흥해읍 동해대로1475번길 42",       lat:36.123, lng:129.348, d:"6/22", w:"w1", z:"흥해읍",   lv:"고등학교"},
+  {n:"흥해중학교",             a:"포항시 북구 흥해읍 동해대로 1525",             lat:36.125, lng:129.350, d:"6/22", w:"w1", z:"흥해읍",   lv:"중학교"},
+  // 6/23
+  {n:"두호고등학교",            a:"포항시 북구 학전로111번길 21 (두호동)",         lat:36.056, lng:129.370, d:"6/23", w:"w1", z:"북구시내", lv:"고등학교"},
+  {n:"포항중학교",              a:"포항시 북구 학산로 45 (학산동)",               lat:36.022, lng:129.351, d:"6/23", w:"w1", z:"북구시내", lv:"중학교"},
+  {n:"청하중학교",              a:"포항시 북구 청하면 청하로151번길 26",           lat:36.195, lng:129.327, d:"6/23", w:"w1", z:"원거리",   lv:"중학교",  note:"청하면 (시내에서 약 30km 북쪽)"},
+  {n:"포항항도중학교",           a:"포항시 북구 중흥로 170 (죽도동)",              lat:36.026, lng:129.370, d:"6/23", w:"w1", z:"북구시내", lv:"중학교"},
+  // 6/24
+  {n:"포항보건고등학교",         a:"포항시 북구 죽장면 일광길2",                   lat:36.218, lng:129.197, d:"6/24", w:"w1", z:"원거리",   lv:"고등학교", note:"죽장면 산간 오지 (약 40km, 별도 이동 필요)"},
+  {n:"서포중학교",              a:"포항시 북구 죽장면 일광길 2",                  lat:36.219, lng:129.199, d:"6/24", w:"w1", z:"원거리",   lv:"중학교",   note:"죽장면 산간 오지 (약 40km, 별도 이동 필요)"},
+  {n:"포항여자중학교",           a:"포항시 북구 장미길 49 (우현동)",               lat:36.017, lng:129.361, d:"6/24", w:"w1", z:"북구시내", lv:"중학교"},
+  {n:"포항여자고등학교",         a:"포항시 북구 장미길 10 (학산동)",               lat:36.019, lng:129.354, d:"6/24", w:"w1", z:"북구시내", lv:"고등학교"},
+  {n:"양덕중학교",              a:"포항시 북구 장량로241번길 22 (양덕동)",         lat:36.042, lng:129.377, d:"6/24", w:"w1", z:"북구시내", lv:"중학교"},
+  // 6/25
+  {n:"양학중학교",              a:"포항시 북구 이동로 63 (득량동)",               lat:36.038, lng:129.375, d:"6/25", w:"w1", z:"북구시내", lv:"중학교"},
+  {n:"대동고등학교",            a:"포항시 북구 우창서길 34 (우현동)",              lat:36.016, lng:129.364, d:"6/25", w:"w1", z:"북구시내", lv:"고등학교"},
+  {n:"대동중학교",              a:"포항시 북구 우창서길 34 (우현동)",              lat:36.015, lng:129.363, d:"6/25", w:"w1", z:"북구시내", lv:"중학교"},
+  {n:"유성여자고등학교",         a:"포항시 북구 우창로 43 (우현동)",               lat:36.017, lng:129.364, d:"6/25", w:"w1", z:"북구시내", lv:"고등학교"},
+  {n:"포항여자전자고등학교",      a:"포항시 북구 용흥로291번길 19 (용흥동)",         lat:36.030, lng:129.374, d:"6/25", w:"w1", z:"북구시내", lv:"고등학교"},
+  // 6/26
+  {n:"대흥중학교",              a:"포항시 북구 용흥로 292번길 35 (용흥동)",        lat:36.031, lng:129.375, d:"6/26", w:"w1", z:"북구시내", lv:"중학교"},
+  {n:"동지여자중학교",           a:"포항시 북구 용흥로 123",                      lat:36.028, lng:129.372, d:"6/26", w:"w1", z:"북구시내", lv:"중학교"},
+  {n:"동지중학교",              a:"포항시 북구 용흥로 123 (용흥동)",              lat:36.028, lng:129.371, d:"6/26", w:"w1", z:"북구시내", lv:"중학교"},
+  {n:"동지여자고등학교",         a:"포항시 북구 용흥로 123",                      lat:36.029, lng:129.373, d:"6/26", w:"w1", z:"북구시내", lv:"고등학교"},
+
+  // ===== 2주차 =====
+  // 6/29
+  {n:"동지고등학교",            a:"포항시 북구 용흥로 123",                      lat:36.029, lng:129.372, d:"6/29", w:"w2", z:"북구시내", lv:"고등학교"},
+  {n:"한국해양마이스터고등학교",   a:"포항시 북구 여남포길21번길 18 (여남동)",        lat:36.063, lng:129.399, d:"6/29", w:"w2", z:"원거리",   lv:"고등학교", note:"여남동 (여남항 인근, 약 13km, 당일 이동 가능)"},
+  {n:"포항고등학교",            a:"포항시 북구 아호로 50 (학산동)",               lat:36.024, lng:129.353, d:"6/29", w:"w2", z:"북구시내", lv:"고등학교"},
+  // 6/30
+  {n:"세화고등학교",            a:"포항시 북구 아치로 94 (우현동)",               lat:36.016, lng:129.360, d:"6/30", w:"w2", z:"북구시내", lv:"고등학교"},
+  {n:"신광중학교",              a:"포항시 북구 신광면 토성길51번길 19-2",           lat:36.082, lng:129.218, d:"6/30", w:"w2", z:"원거리",   lv:"중학교",   note:"신광면 (약 25km 서쪽)"},
+  {n:"포항중앙여자고등학교",      a:"포항시 북구 소티재로151번길 7 (우현동)",        lat:36.013, lng:129.358, d:"6/30", w:"w2", z:"북구시내", lv:"고등학교"},
+  {n:"포항중앙고등학교",         a:"포항시 북구 소티재로151번길 11 (우현동)",       lat:36.013, lng:129.359, d:"6/30", w:"w2", z:"북구시내", lv:"고등학교"},
+  // 7/1
+  {n:"포항명도학교",            a:"포항시 북구 소티재로 133 (우현동)",             lat:36.014, lng:129.358, d:"7/1",  w:"w2", z:"북구시내", lv:"특수학교"},
+  {n:"포항영신고등학교",         a:"포항시 북구 소티재로 107 (우현동)",             lat:36.012, lng:129.357, d:"7/1",  w:"w2", z:"북구시내", lv:"고등학교"},
+  {n:"포항영신중학교",           a:"포항시 북구 소티재로 107 (우현동)",             lat:36.012, lng:129.356, d:"7/1",  w:"w2", z:"북구시내", lv:"중학교"},
+  {n:"창포중학교",              a:"포항시 북구 새천년대로1075번길 30 (창포동)",      lat:36.037, lng:129.363, d:"7/1",  w:"w2", z:"북구시내", lv:"중학교"},
+  {n:"대도중학교",              a:"포항시 북구 삼호로509번길 12 (환호동)",          lat:36.032, lng:129.382, d:"7/1",  w:"w2", z:"북구시내", lv:"중학교"},
+  // 7/2
+  {n:"환호여자중학교",           a:"포항시 북구 삼호로 480-6 (환호동)",             lat:36.031, lng:129.381, d:"7/2",  w:"w2", z:"북구시내", lv:"중학교"},
+  {n:"장흥중학교",              a:"포항시 북구 법원로 120번지 (장성동)",            lat:36.022, lng:129.363, d:"7/2",  w:"w2", z:"북구시내", lv:"중학교"},
+  {n:"포항장성고등학교",         a:"포항시 북구 법원로 117 (장성동)",              lat:36.022, lng:129.362, d:"7/2",  w:"w2", z:"북구시내", lv:"고등학교"},
+  {n:"기계중학교기북분교장",       a:"포항시 북구 기북면 기북로 469",               lat:36.087, lng:129.178, d:"7/2",  w:"w2", z:"원거리",   lv:"중학교",   note:"기북면 (약 38km 서북쪽, 별도 이동 필요)"},
+  {n:"기계중학교",              a:"포항시 북구 기계면 기계로218",                  lat:36.067, lng:129.193, d:"7/2",  w:"w2", z:"원거리",   lv:"중학교",   note:"기계면 (약 28km 서북쪽)"},
+  // 7/3
+  {n:"포항이동고등학교",         a:"포항시 남구 희망대로 412 (이동)",               lat:36.003, lng:129.338, d:"7/3",  w:"w2", z:"남구",     lv:"고등학교"},
+  {n:"대보중학교",              a:"포항시 남구 호미곶면 해맞이로 122",             lat:36.077, lng:129.567, d:"7/3",  w:"w2", z:"원거리",   lv:"중학교",   note:"호미곶면 (약 42km 동쪽, 왕복 1.5시간 이상)"},
+  {n:"송도중학교",              a:"포항시 남구 축항로72번길 11 (송도동)",           lat:36.015, lng:129.372, d:"7/3",  w:"w2", z:"북구시내", lv:"중학교"},
+  {n:"포항제철고등학교",         a:"포항시 남구 지곡로212번길 40 (지곡동)",         lat:35.999, lng:129.355, d:"7/3",  w:"w2", z:"남구",     lv:"고등학교"},
+
+  // ===== 3주차 =====
+  // 7/6
+  {n:"포항제철공업고등학교",      a:"포항시 남구 지곡로 150 (지곡동)",              lat:35.999, lng:129.352, d:"7/6",  w:"w3", z:"남구",     lv:"고등학교"},
+  {n:"포항제철중학교",           a:"포항시 남구 지곡로 150 (지곡동)",              lat:35.998, lng:129.351, d:"7/6",  w:"w3", z:"남구",     lv:"중학교"},
+  {n:"경북과학고등학교",         a:"포항시 남구 지곡로 130 (지곡동)",              lat:36.001, lng:129.353, d:"7/6",  w:"w3", z:"남구",     lv:"고등학교"},
+  {n:"장기중학교",              a:"포항시 남구 장기면 읍내길 53",                  lat:35.887, lng:129.490, d:"7/6",  w:"w3", z:"원거리",   lv:"중학교",   note:"장기면 (약 40km 남쪽, 별도 이동 필요)"},
+  {n:"오천중학교",              a:"포항시 남구 오천읍 해병로 293",                 lat:35.982, lng:129.294, d:"7/6",  w:"w3", z:"남구",     lv:"중학교"},
+  // 7/7
+  {n:"오천고등학교",            a:"포항시 남구 오천읍 해병로 293",                 lat:35.982, lng:129.295, d:"7/7",  w:"w3", z:"남구",     lv:"고등학교"},
+  {n:"신흥중학교",              a:"포항시 남구 오천읍 장기로 1636",                lat:35.977, lng:129.308, d:"7/7",  w:"w3", z:"남구",     lv:"중학교"},
+  {n:"포항포은중학교",           a:"포항시 남구 오천읍 냉천로340번길 30",            lat:35.975, lng:129.302, d:"7/7",  w:"w3", z:"남구",     lv:"중학교"},
+  {n:"유강중학교",              a:"포항시 남구 연일읍 유강길 52",                  lat:36.003, lng:129.314, d:"7/7",  w:"w3", z:"남구",     lv:"중학교"},
+  {n:"영일고등학교",            a:"포항시 남구 연일읍 동문로 56",                  lat:35.999, lng:129.316, d:"7/7",  w:"w3", z:"남구",     lv:"고등학교"},
+  // 7/8
+  {n:"영일중학교",              a:"포항시 남구 연일읍 동문로 56",                  lat:35.999, lng:129.317, d:"7/8",  w:"w3", z:"남구",     lv:"중학교"},
+  {n:"세명고등학교",            a:"포항시 남구 새천년대로474번길 13 (대잠동)",       lat:36.007, lng:129.343, d:"7/8",  w:"w3", z:"남구",     lv:"고등학교"},
+  {n:"상도중학교",              a:"포항시 남구 상공로92번길 16 (대도동)",           lat:36.010, lng:129.348, d:"7/8",  w:"w3", z:"남구",     lv:"중학교"},
+  {n:"포항동해중학교",           a:"포항시 남구 동해면 일월로41번길 26",            lat:35.928, lng:129.437, d:"7/8",  w:"w3", z:"원거리",   lv:"중학교",   note:"동해면 (약 27km 남동쪽)"},
+  {n:"포항동성고등학교",         a:"포항시 남구 동해면 일월로41번길 26",            lat:35.928, lng:129.438, d:"7/8",  w:"w3", z:"원거리",   lv:"고등학교", note:"동해면 (약 27km 남동쪽)"},
+  // 7/9
+  {n:"포항해오름중학교",         a:"포항시 남구 오천읍 하원로26번길 20-11",          lat:35.973, lng:129.298, d:"7/9",  w:"w3", z:"남구",     lv:"중학교"},
+  {n:"포항이동중학교",           a:"포항시 남구 대이로 170 (이동)",                lat:36.002, lng:129.337, d:"7/9",  w:"w3", z:"남구",     lv:"중학교"},
+  {n:"대송중학교",              a:"포항시 남구 대송면 남성길 100",                 lat:35.967, lng:129.271, d:"7/9",  w:"w3", z:"남구",     lv:"중학교",   note:"대송면 (약 18km 남서쪽)"},
+  {n:"포항과학기술고등학교",       a:"포항시 남구 구룡포읍 호미로 341",               lat:35.990, lng:129.553, d:"7/9",  w:"w3", z:"원거리",   lv:"고등학교", note:"구룡포읍 (약 35km 동남쪽, 왕복 1.5시간)"},
+  // 7/10
+  {n:"구룡포중학교",            a:"포항시 남구 구룡포읍 호미로 341",               lat:35.990, lng:129.553, d:"7/10", w:"w3", z:"원거리",   lv:"중학교",   note:"구룡포읍 (약 35km 동남쪽, 왕복 1.5시간)"},
+  {n:"경상북도교육청과학원",       a:"포항시 북구 우미길 93",                       lat:36.020, lng:129.367, d:"7/10", w:"w3", z:"북구시내", lv:"기관"},
+];
+
+const wColor = {w1:"#2196F3", w2:"#FF9800", w3:"#27AE60"};
+let curWeek = 'all', curZone = 'all';
+let markerMap = {};
+
+const map = L.map('map').setView([36.010, 129.375], 11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© OpenStreetMap contributors', maxZoom:19
+}).addTo(map);
+
+function mkIcon(s){
+  const c = s.z==='원거리' ? '#9C27B0' : (wColor[s.w]||'#888');
+  const border = s.z==='원거리' ? '3px solid #6a1b9a' : '2px solid rgba(0,0,0,0.2)';
+  return L.divIcon({
+    className:'',
+    html:`<div style="background:${c};color:#fff;border:${border};border-radius:50%;
+      width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+      font-size:9px;font-weight:bold;font-family:'Malgun Gothic',sans-serif;
+      box-shadow:0 2px 5px rgba(0,0,0,0.3);white-space:nowrap;">${s.d}</div>`,
+    iconSize:[30,30], iconAnchor:[15,15]
+  });
+}
+
+function popupHTML(s){
+  const noteHtml = s.note?`<div style="color:#c0392b;font-size:10px;margin-top:5px;background:#fff3cd;padding:4px 6px;border-radius:3px;">⚠ ${s.note}</div>`:'';
+  const badgeColor = wColor[s.w]||'#888';
+  const wLabel = {w1:'1주차',w2:'2주차',w3:'3주차',wx:'폐교확인'}[s.w];
+  return `<div style="font-family:'Malgun Gothic',sans-serif;min-width:210px;">
+    <div style="font-weight:bold;font-size:13px;color:#1a3a5c;margin-bottom:6px;">${s.n}</div>
+    <div style="margin-bottom:3px;">
+      <span style="background:${badgeColor};color:#fff;padding:1px 6px;border-radius:2px;font-size:10px;font-weight:bold;">${wLabel}</span>
+      <span style="font-size:11px;color:#e74c3c;font-weight:bold;margin-left:5px;">📅 ${s.d}</span>
+    </div>
+    <div style="font-size:11px;color:#555;margin-bottom:2px;">🏫 ${s.lv}</div>
+    <div style="font-size:11px;color:#555;margin-bottom:2px;">🗺 구역: ${s.z}</div>
+    <div style="font-size:11px;color:#777;line-height:1.4;">📍 ${s.a}</div>
+    ${noteHtml}
+  </div>`;
+}
+
+function render(){
+  // Clear existing markers
+  Object.values(markerMap).forEach(m=>map.removeLayer(m));
+  markerMap={};
+  const filtered = schools.filter(s=>{
+    const wm = curWeek==='all' || s.w===curWeek;
+    const zm = curZone==='all' || s.z===curZone;
+    return wm && zm;
+  });
+  filtered.forEach((s,i)=>{
+    const m = L.marker([s.lat,s.lng],{icon:mkIcon(s)});
+    m.bindPopup(popupHTML(s),{maxWidth:300});
+    m.addTo(map);
+    markerMap[i]=m;
+  });
+  // List
+  document.getElementById('total-cnt').textContent = filtered.length;
+  document.getElementById('list-cnt').textContent = `(${filtered.length})`;
+  document.getElementById('school-list').innerHTML = filtered.map((s,i)=>`
+    <div class="s-item" onclick="flyTo(${i},'${s.d}',${s.lat},${s.lng})">
+      <div class="s-name">${s.n}</div>
+      <div class="s-meta">
+        <span class="badge ${s.w}">${s.d}</span>${s.lv}
+        ${s.z==='원거리'?'<span class="remote"> 🚗 원거리</span>':''}
+      </div>
+    </div>`).join('');
+  window._filtered = filtered;
+}
+
+function flyTo(i,d,lat,lng){
+  map.flyTo([lat,lng],15,{duration:1.2});
+  setTimeout(()=>{ if(markerMap[i]) markerMap[i].openPopup(); },1300);
+}
+
+function setWeek(w){
+  curWeek=w;
+  ['all','w1','w2','w3'].forEach(x=>{
+    const b=document.getElementById('btn-'+(x==='all'?'all-w':x));
+    if(b) b.classList.toggle('active', x===w);
+  });
+  render();
+}
+function setZone(z){
+  curZone=z;
+  ['all','z1','z2','z3','z4'].forEach((x,i)=>{
+    const b=document.getElementById('btn-'+x);
+    const zones=['all','북구시내','흥해읍','남구','원거리'];
+    if(b) b.classList.toggle('active', zones[i]===z);
+  });
+  render();
+}
+
+// Hotel recommendation markers
+const hotelZones = [
+  {
+    lat:36.007, lng:129.347,
+    title:"★★ 추천 거점호텔 (단일 예약 최적)",
+    body:`위치: 포항시청 인근 (남구 대잠동)\n\n` +
+         `▸ 북구 시내 학교까지: 차로 8~12분\n` +
+         `▸ 남구 학교까지: 차로 5~15분\n` +
+         `▸ 지곡동(포스코 계열): 차로 5~8분\n` +
+         `▸ 오천읍·연일읍: 차로 12~18분\n` +
+         `▸ 흥해읍: 차로 22~25분\n\n` +
+         `→ 남·북구 균형 이동에 최적.\n` +
+         `→ 포항시청 주변 비즈니스 호텔 다수 입지.`,
+    color:"#E91E63"
+  },
+  {
+    lat:36.022, lng:129.357,
+    title:"참고: 북구 시내 중심 호텔",
+    body:`위치: 포항 북구 학산동·죽도동 인근\n\n` +
+         `▸ 북구 시내 학교까지: 차로 2~5분\n` +
+         `▸ 남구 학교까지: 차로 12~18분\n` +
+         `▸ 흥해읍: 차로 18~22분\n\n` +
+         `→ 북구 집중(1·2주차)에 유리.\n` +
+         `→ 3주차 남구 집중 시 이동 시간 소폭 증가.`,
+    color:"#FF9800"
+  }
+];
+
+hotelZones.forEach(hz=>{
+  const icon = L.divIcon({
+    className:'',
+    html:`<div style="background:${hz.color};color:#fff;border:2px solid rgba(0,0,0,0.3);
+      border-radius:6px;padding:4px 8px;font-size:10px;font-weight:bold;
+      font-family:'Malgun Gothic',sans-serif;box-shadow:0 3px 8px rgba(0,0,0,0.4);
+      white-space:nowrap;">🏨 ${hz.title.startsWith('★★')?'★★ 추천':'참고'}</div>`,
+    iconSize:[90,28], iconAnchor:[45,14]
+  });
+  L.marker([hz.lat,hz.lng],{icon, zIndexOffset:1000})
+   .bindPopup(`<div style="font-family:'Malgun Gothic',sans-serif;min-width:230px;">
+     <div style="font-weight:bold;font-size:13px;color:#1a3a5c;margin-bottom:8px;">${hz.title}</div>
+     <div style="font-size:11px;color:#444;white-space:pre-line;line-height:1.7;">${hz.body}</div>
+   </div>`, {maxWidth:280})
+   .addTo(map);
+});
+
+render();
+</script>
+</body>
+</html>
