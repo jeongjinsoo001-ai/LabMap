@@ -25,6 +25,9 @@ body{font-family:'Malgun Gothic',sans-serif;background:#f0f2f5;}
 .btn:hover:not(.active){background:#f0f4f8;}
 .legend{margin-top:2px;}
 .legend-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:11px;color:#444;}
+.legend-row.clickable{cursor:pointer;border-radius:4px;padding:2px 5px;margin-left:-5px;transition:background 0.15s;}
+.legend-row.clickable:hover{background:#e8f0fe;}
+.legend-row.clickable.leg-active{background:#1a3a5c18;font-weight:bold;border-left:3px solid #1a3a5c;padding-left:6px;}
 .dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,0.15);}
 #school-list-wrap{flex:1;overflow-y:auto;padding:0 12px 12px;}
 .list-header{font-size:10px;font-weight:bold;color:#888;text-transform:uppercase;padding:8px 0 5px;position:sticky;top:0;background:#fff;}
@@ -42,22 +45,42 @@ body{font-family:'Malgun Gothic',sans-serif;background:#f0f2f5;}
 
 /* ── 학교 이름 tooltip ── */
 .school-label {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+  background: #FFF176 !important;
+  border: 1px solid #F9A825 !important;
+  border-radius: 5px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25) !important;
   font-family: 'Malgun Gothic', sans-serif !important;
   font-size: 10px !important;
   font-weight: bold !important;
   color: #111 !important;
   white-space: nowrap !important;
-  padding: 1px 2px !important;
+  padding: 2px 6px !important;
   opacity: 0 !important;
   pointer-events: none;
-  text-shadow: 0 0 4px #fff, 0 0 4px #fff, 0 0 4px #fff, 0 0 4px #fff;
-  line-height: 1.2 !important;
+  line-height: 1.3 !important;
 }
 .school-label::before { display: none !important; }
 .zoom-labels .school-label { opacity: 1 !important; }
+
+/* ── 원거리 학교 — 항상 표시 (흰색 라운드 박스) ── */
+.school-label-always {
+  background: white !important;
+  border: 1.5px solid #aaa !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3) !important;
+  font-family: 'Malgun Gothic', sans-serif !important;
+  font-size: 10px !important;
+  font-weight: bold !important;
+  color: #111 !important;
+  white-space: nowrap !important;
+  padding: 3px 7px !important;
+  opacity: 1 !important;
+  pointer-events: none;
+  line-height: 1.4 !important;
+  text-align: center !important;
+}
+.school-label-always::before { display: none !important; }
+@media print { .school-label-always { opacity: 1 !important; } }
 
 /* ── 인쇄(출력) ── */
 @media print {
@@ -103,21 +126,22 @@ body{font-family:'Malgun Gothic',sans-serif;background:#f0f2f5;}
 
       <div class="legend">
         <div class="filter-title">범례</div>
-        <div style="font-size:10px;color:#777;margin-bottom:4px;">● 1주차 (완료)</div>
-        <div class="legend-row"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8.0" cy="8.0" r="6.5" fill="#9E9E9E" stroke="white" stroke-width="1.5"/></svg> 6/22–6/26 (완료)</div>
+        <div style="font-size:10px;color:#777;margin-bottom:4px;">● 1주차 (완료) &nbsp;<span style="font-size:9px;color:#aaa;">※날짜 클릭 시 해당일만 표시</span></div>
+        <div class="legend-row"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" fill="#9E9E9E" stroke="white" stroke-width="1.5"/></svg> 6/22–6/26 (완료)</div>
         <div style="font-size:10px;color:#777;margin:6px 0 4px;">▶ 2주차 (진행중)</div>
-        <div class="legend-row"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8.0,1.5 9.8,5.6 14.2,6.0 10.9,8.9 11.8,13.3 8.0,11.0 4.2,13.3 5.1,8.9 1.8,6.0 6.2,5.6" fill="#F57C00" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg> 6/29(월)</div>
-        <div class="legend-row"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,1 15,15 1,15" fill="#D32F2F" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg> 6/30(화)</div>
-        <div class="legend-row"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="13" height="13" rx="2.5" fill="#F9A825" stroke="white" stroke-width="1.5"/></svg> 7/1(수)</div>
-        <div class="legend-row"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8.0" cy="8.0" r="6.5" fill="#F57C00" stroke="white" stroke-width="1.5"/></svg> 7/2(목)</div>
-        <div class="legend-row"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8.0" cy="8.0" r="4" fill="#D32F2F"/><circle cx="8.0" cy="8.0" r="5.5" fill="none" stroke="white" stroke-width="1"/><circle cx="8.0" cy="8.0" r="7" fill="none" stroke="white" stroke-width="1"/></svg> 7/3(금)</div>
-        <div style="font-size:10px;color:#777;margin:6px 0 4px;">◆ 3주차 (대기)</div>
-        <div class="legend-row"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8.0,1.5 9.8,5.6 14.2,6.0 10.9,8.9 11.8,13.3 8.0,11.0 4.2,13.3 5.1,8.9 1.8,6.0 6.2,5.6" fill="#4E342E" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg> 7/6(월) <span style="font-size:9px;color:#aaa;">(완료시 자동갱신)</span></div>
-        <div class="legend-row"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><polygon points="8,1 15,15 1,15" fill="#37474F" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg> 7/7(화) <span style="font-size:9px;color:#aaa;">(완료시 자동갱신)</span></div>
-        <div class="legend-row"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect x="1.5" y="1.5" width="13" height="13" rx="2.5" fill="#283593" stroke="white" stroke-width="1.5"/></svg> 7/8(수) <span style="font-size:9px;color:#aaa;">(완료시 자동갱신)</span></div>
-        <div class="legend-row"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8.0" cy="8.0" r="6.5" fill="#4A148C" stroke="white" stroke-width="1.5"/></svg> 7/9(목) <span style="font-size:9px;color:#aaa;">(완료시 자동갱신)</span></div>
-        <div class="legend-row"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8.0" cy="8.0" r="4" fill="#B71C1C"/><circle cx="8.0" cy="8.0" r="5.5" fill="none" stroke="white" stroke-width="1"/><circle cx="8.0" cy="8.0" r="7" fill="none" stroke="white" stroke-width="1"/></svg> 7/10(금) <span style="font-size:9px;color:#aaa;">(완료시 자동갱신)</span></div>
-        <div class="legend-row"><div style="font-size:16px;line-height:1;">🏨</div>맨션6호텔 (거점)</div>
+        <div class="legend-row clickable" id="leg-629" onclick="setDate('6/29')"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" fill="#F57C00" stroke="white" stroke-width="1.5"/></svg> 6/29(월) — 오렌지</div>
+        <div class="legend-row clickable" id="leg-630" onclick="setDate('6/30')"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" fill="#EF5350" stroke="#B71C1C" stroke-width="1.5"/></svg> 6/30(화) — 빨강</div>
+        <div class="legend-row clickable" id="leg-71" onclick="setDate('7/1')"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" fill="#795548" stroke="#212121" stroke-width="1.5"/></svg> 7/1(수) — 브라운</div>
+        <div class="legend-row clickable" id="leg-72" onclick="setDate('7/2')"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" fill="#81D4FA" stroke="white" stroke-width="1.5"/></svg> 7/2(목) — 스카이블루</div>
+        <div class="legend-row clickable" id="leg-73" onclick="setDate('7/3')"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" fill="#0288D1" stroke="#D32F2F" stroke-width="1.5"/></svg> 7/3(금) — 진스카이블루</div>
+        <div style="font-size:10px;color:#777;margin:6px 0 4px;">◆ 3주차 (대기) — 2주차와 동일 배색</div>
+        <div class="legend-row clickable" id="leg-76" onclick="setDate('7/6')"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" fill="#F57C00" stroke="white" stroke-width="1.5"/></svg> 7/6(월) — 오렌지</div>
+        <div class="legend-row clickable" id="leg-77" onclick="setDate('7/7')"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" fill="#EF5350" stroke="#B71C1C" stroke-width="1.5"/></svg> 7/7(화) — 빨강</div>
+        <div class="legend-row clickable" id="leg-78" onclick="setDate('7/8')"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" fill="#795548" stroke="#212121" stroke-width="1.5"/></svg> 7/8(수) — 브라운</div>
+        <div class="legend-row clickable" id="leg-79" onclick="setDate('7/9')"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" fill="#81D4FA" stroke="white" stroke-width="1.5"/></svg> 7/9(목) — 스카이블루</div>
+        <div class="legend-row clickable" id="leg-710" onclick="setDate('7/10')"><svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.5" fill="#0288D1" stroke="#D32F2F" stroke-width="1.5"/></svg> 7/10(금) — 진스카이블루</div>
+        <div class="legend-row clickable" onclick="map.flyTo([36.0152,129.3462],15,{duration:1.2})" title="클릭 시 지도 이동"><div style="font-size:16px;line-height:1;">🏨</div>맨션6호텔 (거점)</div>
+        <div class="legend-row clickable" onclick="map.flyTo([36.0934,129.3580],15,{duration:1.2})" title="클릭 시 지도 이동"><div style="font-size:16px;line-height:1;">🚄</div>포항역 KTX (귀경/도착)</div>
       </div>
       <div class="print-btn-wrap" style="margin-top:8px;">
         <button class="btn" onclick="window.print()" style="width:100%;background:#1a3a5c;color:#fff;border-color:#1a3a5c;padding:6px 0;font-size:11px;">🖨️ A4 출력 (6~8장 이어붙이기)</button>
@@ -223,23 +247,26 @@ const schools = [
 ];
 
 // ── 주차/날짜별 색상·모양 설정 ──────────────────────────
-const W3_START = new Date(2026, 6, 6); // 2026-07-06
-const today    = new Date();
-const w3Bright = today >= W3_START;
-
+// 2주·3주 공통 요일 패턴: 월=오렌지/흰테두리, 화=빨강/진빨강테두리, 수=브라운/검정테두리, 목=옅은스카이블루/흰테두리, 금=짙은스카이블루/빨강테두리
 const W1 = ['6/22','6/23','6/24','6/25','6/26'];
 const W2 = ['6/29','6/30','7/1','7/2','7/3'];
 const W3 = ['7/6','7/7','7/8','7/9','7/10'];
-const SHAPES = ['star','triangle','square','circle1','circle2'];
 
-const W2_COLORS = ['#F57C00','#D32F2F','#F9A825','#F57C00','#D32F2F'];
-const W3_DARK   = ['#4E342E','#37474F','#283593','#4A148C','#B71C1C'];
-const W3_BRIGHT = ['#F9A825','#F57C00','#D32F2F','#F9A825','#F57C00'];
+const DAY_COLORS  = ['#F57C00','#EF5350','#795548','#81D4FA','#0288D1'];
+const DAY_STROKES = ['white',  '#B71C1C','#212121','white',  '#D32F2F'];
 
 const dCfg = {};
-W1.forEach(d => { dCfg[d] = {c:'#9E9E9E', sh:'circle1'}; });
-W2.forEach((d,i) => { dCfg[d] = {c:W2_COLORS[i], sh:SHAPES[i]}; });
-W3.forEach((d,i) => { dCfg[d] = {c: w3Bright ? W3_BRIGHT[i] : W3_DARK[i], sh:SHAPES[i]}; });
+W1.forEach(d => { dCfg[d] = {c:'#9E9E9E', sh:'circle1', sc:'white'}; });
+W2.forEach((d,i) => { dCfg[d] = {c:DAY_COLORS[i], sh:'circle1', sc:DAY_STROKES[i]}; });
+W3.forEach((d,i) => { dCfg[d] = {c:DAY_COLORS[i], sh:'circle1', sc:DAY_STROKES[i]}; });
+
+// ── 거점(맨션6호텔)에서의 거리 계산 ──
+const HOTEL_LAT=36.0308, HOTEL_LNG=129.3275;
+function distKm(lat1,lng1,lat2,lng2){
+  const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
 
 function txtColor(hex){
   const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
@@ -250,47 +277,25 @@ function txtColor(hex){
 const STAR_PTS38 = "19.0,3.0 23.1,13.3 34.2,14.1 25.7,21.2 28.4,31.9 19.0,26.0 9.6,31.9 12.3,21.2 3.8,14.1 14.9,13.3";
 const STAR_PTS16 = "8.0,1.5 9.8,5.6 14.2,6.0 10.9,8.9 11.8,13.3 8.0,11.0 4.2,13.3 5.1,8.9 1.8,6.0 6.2,5.6";
 
-function mkSVG(sh, c, tc, lbl, S){
+function mkSVG(sh, c, tc, lbl, S, sc){
   S = S||38;
+  sc = sc||'white';
   const small = S<=16;
   const cx=S/2, cy=S/2;
-  // 별 좌표를 S에 맞게 스케일
-  const starPts = small ? STAR_PTS16 : STAR_PTS38;
-  const triPts  = small ? "8,1 15,15 1,15" : "19,2 36,36 2,36";
-  const triTextY = small ? "12" : "26";
-  const sw = small ? 1.5 : 2.5;  // stroke-width
+  const sw = small ? 1.5 : 2.5;
   const font = `font-size="${small?7:9}" font-weight="bold" font-family="Malgun Gothic,sans-serif" fill="${tc}"`;
   const text = (x,y)=>`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" ${font}>${lbl}</text>`;
 
-  if(sh==='star')
-    return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="${starPts}" fill="${c}" stroke="white" stroke-width="${small?1.5:2}" stroke-linejoin="round"/>
-      ${text(cx,cy)}</svg>`;
-  if(sh==='triangle')
-    return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg">
-      <polygon points="${triPts}" fill="${c}" stroke="white" stroke-width="${sw}" stroke-linejoin="round"/>
-      ${text(cx,triTextY)}</svg>`;
-  if(sh==='square')
-    return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg">
-      <rect x="${small?1.5:3}" y="${small?1.5:3}" width="${S-(small?3:6)}" height="${S-(small?3:6)}" rx="${small?2.5:5}" fill="${c}" stroke="white" stroke-width="${sw}"/>
-      ${text(cx,cy)}</svg>`;
-  if(sh==='circle1')
-    return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="${cx}" cy="${cy}" r="${cx-(small?1.5:2)}" fill="${c}" stroke="white" stroke-width="${sw}"/>
-      ${text(cx,cy)}</svg>`;
-  if(sh==='circle2')
-    return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="${cx}" cy="${cy}" r="${cx-(small?4:7)}" fill="${c}"/>
-      <circle cx="${cx}" cy="${cy}" r="${cx-(small?2.5:4.5)}" fill="none" stroke="white" stroke-width="${small?1:1.5}"/>
-      <circle cx="${cx}" cy="${cy}" r="${cx-(small?1:1.5)}" fill="none" stroke="white" stroke-width="${small?1:1.5}"/>
-      ${text(cx,cy)}</svg>`;
-  return '';
+  // 모든 마커는 원형
+  return `<svg width="${S}" height="${S}" viewBox="0 0 ${S} ${S}" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="${cx}" cy="${cy}" r="${cx-(small?1.5:2)}" fill="${c}" stroke="${sc}" stroke-width="${sw}"/>
+    ${text(cx,cy)}</svg>`;
 }
 
 function mkIcon(s){
-  const cfg = dCfg[s.d]||{c:'#888',sh:'circle1'};
+  const cfg = dCfg[s.d]||{c:'#888',sh:'circle1',sc:'white'};
   const tc  = txtColor(cfg.c);
-  return L.divIcon({className:'', html:mkSVG(cfg.sh,cfg.c,tc,s.d,38), iconSize:[38,38], iconAnchor:[19,19]});
+  return L.divIcon({className:'', html:mkSVG(cfg.sh,cfg.c,tc,s.d,38,cfg.sc), iconSize:[38,38], iconAnchor:[19,19]});
 }
 
 // ── 팝업 HTML ──────────────────────────────────────────
@@ -312,7 +317,8 @@ function popupHTML(s){
 }
 
 // ── 지도 초기화 ─────────────────────────────────────────
-let curWeek='all', curZone='all';
+let curWeek='all', curZone='all', curDate='all';
+let dateLabelSvg=null;
 let markerMap={};
 let clusterGroup=null;
 
@@ -324,6 +330,40 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 // ── render ──────────────────────────────────────────────
 function render(){
   if(clusterGroup){ map.removeLayer(clusterGroup); clusterGroup=null; }
+
+  // 날짜 필터 활성 시: 클러스터링 없이 모든 마커 개별 표시
+  if(curDate!=='all'){
+    clusterGroup = L.layerGroup();
+    markerMap={};
+    const filtered=schools.filter(s=>
+      (curWeek==='all'||s.w===curWeek)&&(curZone==='all'||s.z===curZone)&&s.d===curDate
+    );
+    filtered.forEach((s,i)=>{
+      const mk=L.marker([s.lat,s.lng],{icon:mkIcon(s), school:s});
+      mk.bindPopup(popupHTML(s),{maxWidth:300});
+      // 날짜 필터 시 tooltip 사용 안함 → SVG 오버레이로 대체
+      clusterGroup.addLayer(mk);
+      markerMap[i]=mk;
+    });
+    map.addLayer(clusterGroup);
+    document.getElementById('total-cnt').textContent=filtered.length;
+    document.getElementById('list-cnt').textContent=`(${filtered.length})`;
+    document.getElementById('school-list').innerHTML=filtered.map((s,i)=>{
+      const cfg=dCfg[s.d]||{c:'#888',sh:'circle1',sc:'white'};
+      const tc=txtColor(cfg.c);
+      const miniSVG=mkSVG(cfg.sh,cfg.c,tc,'',16,cfg.sc);
+      return `<div class="s-item" onclick="flyTo(${i},'${s.d}',${s.lat},${s.lng})">
+        <div style="display:flex;align-items:center;gap:5px;">${miniSVG}<span style="font-weight:bold;font-size:11px;">${s.n}</span></div>
+        <div class="s-meta">
+          <span style="background:${cfg.c};color:${tc};padding:1px 5px;border-radius:2px;font-size:9px;font-weight:bold;margin-right:3px;">${s.d}</span>
+          ${s.lv}${s.z==='원거리'?' <span style="color:#e74c3c;font-size:9px;">🚗 원거리</span>':''}
+        </div></div>`;
+    }).join('');
+    window._filtered=filtered;
+    setTimeout(updateDateLabels, 150);
+    return;
+  }
+
   clusterGroup = L.markerClusterGroup({
     maxClusterRadius:50, showCoverageOnHover:false,
     spiderfyOnMaxZoom:true, disableClusteringAtZoom:15,
@@ -337,22 +377,50 @@ function render(){
       const top=Object.entries(cnt_).sort((a,b)=>b[1]-a[1])[0];
       const tc_=top ? top[0] : '#888';
       const cnt=cluster.getChildCount();
+
+      // 원거리 클러스터(7km 이상)는 학교 목록 레이블 추가
+      const schoolList=ms.map(m=>m.options.school).filter(Boolean);
+      let labelHtml='';
+      if(schoolList.length>0){
+        const cLat=schoolList.reduce((s,x)=>s+x.lat,0)/schoolList.length;
+        const cLng=schoolList.reduce((s,x)=>s+x.lng,0)/schoolList.length;
+        if(distKm(cLat,cLng,HOTEL_LAT,HOTEL_LNG)>=7){
+          const lines=schoolList.map(x=>`${x.d} ${x.n}`).join('<br>');
+          labelHtml=`<div style="position:absolute;top:44px;left:50%;transform:translateX(-50%);
+            background:white;border:1.5px solid #aaa;border-radius:6px;
+            padding:3px 8px;font-family:'Malgun Gothic',sans-serif;
+            font-size:10px;font-weight:bold;white-space:nowrap;color:#111;
+            line-height:1.6;text-align:left;
+            box-shadow:0 2px 5px rgba(0,0,0,0.3);pointer-events:none;">${lines}</div>`;
+        }
+      }
+
       return L.divIcon({className:'',
-        html:`<div style="background:${tc_};color:${txtColor(tc_)};border:3px solid rgba(255,255,255,0.85);
-          border-radius:50%;width:40px;height:40px;display:flex;align-items:center;
-          justify-content:center;font-size:13px;font-weight:bold;
-          font-family:'Malgun Gothic',sans-serif;box-shadow:0 3px 8px rgba(0,0,0,0.4);">${cnt}</div>`,
+        html:`<div style="position:relative;width:40px;height:40px;">
+          <div style="background:${tc_};color:${txtColor(tc_)};border:3px solid rgba(255,255,255,0.85);
+            border-radius:50%;width:40px;height:40px;display:flex;align-items:center;
+            justify-content:center;font-size:13px;font-weight:bold;
+            font-family:'Malgun Gothic',sans-serif;box-shadow:0 3px 8px rgba(0,0,0,0.4);">${cnt}</div>
+          ${labelHtml}
+        </div>`,
         iconSize:[40,40],iconAnchor:[20,20]});
     }
   });
   markerMap={};
   const filtered=schools.filter(s=>
-    (curWeek==='all'||s.w===curWeek)&&(curZone==='all'||s.z===curZone)
+    (curWeek==='all'||s.w===curWeek)&&(curZone==='all'||s.z===curZone)&&(curDate==='all'||s.d===curDate)
   );
   filtered.forEach((s,i)=>{
-    const mk=L.marker([s.lat,s.lng],{icon:mkIcon(s)});
+    const mk=L.marker([s.lat,s.lng],{icon:mkIcon(s), school:s});
     mk.bindPopup(popupHTML(s),{maxWidth:300});
-    mk.bindTooltip(s.n,{permanent:true,direction:'top',offset:[0,-22],className:'school-label'});
+    const dist=distKm(s.lat,s.lng,HOTEL_LAT,HOTEL_LNG);
+    if(curDate!=='all'||dist>=7){
+      // 날짜 필터 활성 시 전체 학교, 또는 원거리 학교: 배율 무관하게 항상 표시
+      const lbl=`<div>${s.d}</div><div>${s.n}</div>`;
+      mk.bindTooltip(lbl,{permanent:true,direction:'top',offset:[0,-22],className:'school-label-always'});
+    } else {
+      mk.bindTooltip(s.n,{permanent:true,direction:'top',offset:[0,-22],className:'school-label'});
+    }
     clusterGroup.addLayer(mk);
     markerMap[i]=mk;
   });
@@ -361,9 +429,9 @@ function render(){
   document.getElementById('list-cnt').textContent=`(${filtered.length})`;
   // 사이드바 학교 목록
   document.getElementById('school-list').innerHTML=filtered.map((s,i)=>{
-    const cfg=dCfg[s.d]||{c:'#888',sh:'circle1'};
+    const cfg=dCfg[s.d]||{c:'#888',sh:'circle1',sc:'white'};
     const tc=txtColor(cfg.c);
-    const miniSVG=mkSVG(cfg.sh,cfg.c,tc,'',16);
+    const miniSVG=mkSVG(cfg.sh,cfg.c,tc,'',16,cfg.sc);
     return `<div class="s-item" onclick="flyTo(${i},'${s.d}',${s.lat},${s.lng})">
       <div style="display:flex;align-items:center;gap:5px;">
         ${miniSVG}
@@ -382,14 +450,26 @@ function flyTo(i,d,lat,lng){
   map.flyTo([lat,lng],15,{duration:1.2});
   setTimeout(()=>{
     if(markerMap[i]){
-      if(clusterGroup) clusterGroup.zoomToShowLayer(markerMap[i],()=>{markerMap[i].openPopup();});
+      if(clusterGroup && clusterGroup.zoomToShowLayer) clusterGroup.zoomToShowLayer(markerMap[i],()=>{markerMap[i].openPopup();});
       else markerMap[i].openPopup();
     }
   },1300);
 }
 
+// 날짜 ID 매핑
+const DATE_ID_MAP={'6/29':'leg-629','6/30':'leg-630','7/1':'leg-71','7/2':'leg-72','7/3':'leg-73','7/6':'leg-76','7/7':'leg-77','7/8':'leg-78','7/9':'leg-79','7/10':'leg-710'};
+function setDate(d){
+  curDate=(curDate===d)?'all':d;  // 같은 날짜 재클릭 시 해제
+  document.querySelectorAll('.legend-row.clickable').forEach(el=>el.classList.remove('leg-active'));
+  if(curDate!=='all'){
+    const el=document.getElementById(DATE_ID_MAP[curDate]);
+    if(el) el.classList.add('leg-active');
+  }
+  render();
+}
 function setWeek(w){
-  curWeek=w;
+  curWeek=w; curDate='all';
+  document.querySelectorAll('.legend-row.clickable').forEach(el=>el.classList.remove('leg-active'));
   ['all-w','w1','w2','w3'].forEach(x=>{
     const b=document.getElementById('btn-'+x);
     if(b) b.classList.toggle('active', x===w);
@@ -404,6 +484,115 @@ function setZone(z){
   });
   render();
 }
+
+// ── 날짜 필터 SVG 레이블 (연결선 + 충돌 회피) ─────────────
+function updateDateLabels(){
+  if(dateLabelSvg){dateLabelSvg.remove();dateLabelSvg=null;}
+  if(curDate==='all'||!window._filtered||window._filtered.length===0) return;
+  const mapEl=document.getElementById('map');
+  const W=mapEl.offsetWidth, H=mapEl.offsetHeight;
+  const MR=21; // 마커 반경
+  const PAD=6;
+  // 레이블 항목 생성
+  const items=window._filtered.map(s=>{
+    const pt=map.latLngToContainerPoint([s.lat,s.lng]);
+    const lw=Math.max(s.n.length*10+22, 72);
+    const lh=38;
+    return {s, mx:pt.x, my:pt.y, lw, lh};
+  });
+  // 초기 위치: 마커 위쪽
+  items.forEach(it=>{it.lx=it.mx-it.lw/2; it.ly=it.my-MR-it.lh-10;});
+  // 힘 기반 충돌 회피 (150회 반복)
+  for(let iter=0;iter<150;iter++){
+    for(let i=0;i<items.length;i++){
+      for(let j=i+1;j<items.length;j++){
+        const a=items[i], b=items[j];
+        // 레이블 vs 레이블
+        const ox=Math.min(a.lx+a.lw,b.lx+b.lw)-Math.max(a.lx,b.lx);
+        const oy=Math.min(a.ly+a.lh,b.ly+b.lh)-Math.max(a.ly,b.ly);
+        if(ox>0&&oy>0){
+          const acx=a.lx+a.lw/2,acy=a.ly+a.lh/2;
+          const bcx=b.lx+b.lw/2,bcy=b.ly+b.lh/2;
+          const dx=acx-bcx||0.1, dy=acy-bcy||0.1;
+          const len=Math.sqrt(dx*dx+dy*dy);
+          const push=(Math.min(ox,oy)/2+PAD)*0.35;
+          a.lx+=dx/len*push; a.ly+=dy/len*push;
+          b.lx-=dx/len*push; b.ly-=dy/len*push;
+        }
+        // 레이블 vs 상대방 마커 (겹침 방지)
+        [[a,b],[b,a]].forEach(([lbl,mk])=>{
+          const cx=lbl.lx+lbl.lw/2, cy=lbl.ly+lbl.lh/2;
+          const dx=cx-mk.mx||0.1, dy=cy-mk.my||0.1;
+          const dist=Math.sqrt(dx*dx+dy*dy);
+          const minDist=MR+Math.max(lbl.lw,lbl.lh)/2+PAD;
+          if(dist<minDist){
+            const push=(minDist-dist)*0.35;
+            lbl.lx+=dx/dist*push; lbl.ly+=dy/dist*push;
+          }
+        });
+      }
+      // 화면 경계 제한
+      const it=items[i];
+      it.lx=Math.max(4,Math.min(W-it.lw-4,it.lx));
+      it.ly=Math.max(4,Math.min(H-it.lh-30,it.ly));
+    }
+  }
+  // SVG 생성
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.style.cssText='position:absolute;top:0;left:0;pointer-events:none;z-index:650;overflow:visible;';
+  svg.setAttribute('width',W); svg.setAttribute('height',H);
+  // 연결선 먼저
+  items.forEach(it=>{
+    const lcx=it.lx+it.lw/2, lcy=it.ly+it.lh/2;
+    const dx=lcx-it.mx, dy=lcy-it.my;
+    const len=Math.sqrt(dx*dx+dy*dy)||1;
+    // 마커 테두리 → 레이블 테두리 연결
+    const sx=it.mx+dx/len*MR, sy=it.my+dy/len*MR;
+    // 레이블 가장자리 근접점
+    const ex=lcx-dx/len*(it.lw/2*0.8), ey=lcy-dy/len*(it.lh/2*0.8);
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',sx); line.setAttribute('y1',sy);
+    line.setAttribute('x2',ex); line.setAttribute('y2',ey);
+    line.setAttribute('stroke','#666'); line.setAttribute('stroke-width','1.5');
+    line.setAttribute('stroke-dasharray','5,3');
+    svg.appendChild(line);
+  });
+  // 레이블 박스
+  items.forEach(it=>{
+    const cfg=dCfg[it.s.d]||{c:'#888'};
+    // 그림자
+    const sh=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    sh.setAttribute('x',it.lx+2); sh.setAttribute('y',it.ly+2);
+    sh.setAttribute('width',it.lw); sh.setAttribute('height',it.lh);
+    sh.setAttribute('rx',7); sh.setAttribute('fill','rgba(0,0,0,0.13)');
+    svg.appendChild(sh);
+    // 흰 박스
+    const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x',it.lx); rect.setAttribute('y',it.ly);
+    rect.setAttribute('width',it.lw); rect.setAttribute('height',it.lh);
+    rect.setAttribute('rx',7); rect.setAttribute('fill','white');
+    rect.setAttribute('stroke','#aaa'); rect.setAttribute('stroke-width','1.5');
+    svg.appendChild(rect);
+    // 날짜 텍스트 (색상)
+    const dt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    dt.setAttribute('x',it.lx+it.lw/2); dt.setAttribute('y',it.ly+13);
+    dt.setAttribute('text-anchor','middle');
+    dt.setAttribute('font-size','9'); dt.setAttribute('font-weight','bold');
+    dt.setAttribute('fill',cfg.c); dt.setAttribute('font-family','Malgun Gothic,sans-serif');
+    dt.textContent=it.s.d; svg.appendChild(dt);
+    // 학교명 텍스트 (검정)
+    const nt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    nt.setAttribute('x',it.lx+it.lw/2); nt.setAttribute('y',it.ly+27);
+    nt.setAttribute('text-anchor','middle');
+    nt.setAttribute('font-size','10'); nt.setAttribute('font-weight','bold');
+    nt.setAttribute('fill','#111'); nt.setAttribute('font-family','Malgun Gothic,sans-serif');
+    nt.textContent=it.s.n; svg.appendChild(nt);
+  });
+  mapEl.style.position='relative';
+  mapEl.appendChild(svg);
+  dateLabelSvg=svg;
+}
+map.on('moveend zoomend', updateDateLabels);
 
 // ── 맨션6호텔 마커 ───────────────────────────────────────
 (function(){
@@ -424,6 +613,27 @@ function setZone(z){
      </div>
    </div>`,{maxWidth:280}).addTo(map);
 })();
+
+// ── 포항역(KTX) 마커 ─────────────────────────────────────
+(function(){
+  const icon=L.divIcon({className:'',
+    html:`<div style="background:#1565C0;color:#fff;border:2px solid rgba(0,0,0,0.3);
+      border-radius:6px;padding:4px 9px;font-size:11px;font-weight:bold;
+      font-family:'Malgun Gothic',sans-serif;box-shadow:0 3px 8px rgba(0,0,0,0.4);
+      white-space:nowrap;">🚄 포항역</div>`,
+    iconSize:[80,28],iconAnchor:[40,14]});
+  L.marker([36.0722,129.3433],{icon,zIndexOffset:1000})
+   .bindPopup(`<div style="font-family:'Malgun Gothic',sans-serif;min-width:220px;">
+     <div style="font-weight:bold;font-size:13px;color:#1565C0;margin-bottom:6px;">🚄 포항역 (KTX)</div>
+     <div style="font-size:11px;color:#444;line-height:1.8;">
+       📍 포항시 북구 흥해읍 이인로 59 (이인리)<br>
+       🚗 맨션6호텔 차량 약 20분 (8.6km)<br>
+       💡 금요일 귀경·월요일 도착 기준역
+     </div>
+   </div>`,{maxWidth:280}).addTo(map);
+})();
+
+
 render();
 
 // ── 줌 레벨에 따라 학교 이름 표시/숨김 (줌14 이상에서 표시) ──
