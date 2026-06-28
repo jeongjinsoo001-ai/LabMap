@@ -665,11 +665,11 @@ map.on('moveend zoomend', updateDateLabels);
 // ── 맨션6호텔 마커 ───────────────────────────────────────
 (function(){
   const icon=L.divIcon({className:'',
-    html:`<div style="background:#E53935;color:#fff;border:2px solid rgba(0,0,0,0.3);
-      border-radius:6px;padding:4px 9px;font-size:11px;font-weight:bold;
-      font-family:'Malgun Gothic',sans-serif;box-shadow:0 3px 8px rgba(0,0,0,0.4);
-      white-space:nowrap;">🏨 호텔</div>`,
-    iconSize:[70,28],iconAnchor:[35,14]});
+    html:`<div style="background:#E53935;color:#fff;border:1px solid rgba(0,0,0,0.25);
+      border-radius:4px;padding:2px 5px;font-size:9px;font-weight:bold;
+      font-family:'Malgun Gothic',sans-serif;box-shadow:0 1px 4px rgba(0,0,0,0.3);
+      white-space:nowrap;">🏨</div>`,
+    iconSize:[24,18],iconAnchor:[12,9]});
   L.marker([36.0152,129.3462],{icon,zIndexOffset:1000})
    .bindPopup(`<div style="font-family:'Malgun Gothic',sans-serif;min-width:220px;">
      <div style="font-weight:bold;font-size:13px;color:#E53935;margin-bottom:6px;">🏨 맨션6호텔 (Mansion 6)</div>
@@ -685,11 +685,11 @@ map.on('moveend zoomend', updateDateLabels);
 // ── 포항역(KTX) 마커 ─────────────────────────────────────
 (function(){
   const icon=L.divIcon({className:'',
-    html:`<div style="background:#1565C0;color:#fff;border:2px solid rgba(0,0,0,0.3);
-      border-radius:6px;padding:4px 9px;font-size:11px;font-weight:bold;
-      font-family:'Malgun Gothic',sans-serif;box-shadow:0 3px 8px rgba(0,0,0,0.4);
-      white-space:nowrap;">🚄 포항역</div>`,
-    iconSize:[80,28],iconAnchor:[40,14]});
+    html:`<div style="background:#1565C0;color:#fff;border:1px solid rgba(0,0,0,0.25);
+      border-radius:4px;padding:2px 5px;font-size:9px;font-weight:bold;
+      font-family:'Malgun Gothic',sans-serif;box-shadow:0 1px 4px rgba(0,0,0,0.3);
+      white-space:nowrap;">🚄</div>`,
+    iconSize:[24,18],iconAnchor:[12,9]});
   L.marker([36.0722,129.3433],{icon,zIndexOffset:1000})
    .bindPopup(`<div style="font-family:'Malgun Gothic',sans-serif;min-width:220px;">
      <div style="font-weight:bold;font-size:13px;color:#1565C0;margin-bottom:6px;">🚄 포항역 (KTX)</div>
@@ -723,7 +723,7 @@ map.on('zoomend', function(){
   const WH = () => window.innerHeight;
   const SNAP_COLLAPSED = 44;
   const SNAP_HALF      = () => Math.round(WH() * 0.45);
-  const SNAP_FULL      = () => Math.round(WH() * 0.85);
+  const SNAP_FULL      = () => Math.round(WH() * 0.95);
 
   function setH(h, animate) {
     sidebar.style.transition = animate ? 'height 0.28s cubic-bezier(.4,0,.2,1)' : 'none';
