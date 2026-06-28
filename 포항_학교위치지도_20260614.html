@@ -82,6 +82,72 @@ body{font-family:'Malgun Gothic',sans-serif;background:#f0f2f5;}
 .school-label-always::before { display: none !important; }
 @media print { .school-label-always { opacity: 1 !important; } }
 
+/* ── 모바일 바텀시트 ── */
+@media (max-width: 768px) {
+  #container { position: relative; height: 100vh; overflow: hidden; }
+  #map { position: absolute; inset: 0; z-index: 1; }
+  #sidebar {
+    width: 100% !important;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 1000;
+    height: 45vh;
+    max-height: 85vh;
+    min-height: 44px;
+    border-right: none;
+    border-top: 3px solid #1a3a5c;
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+    transition: height 0.28s cubic-bezier(.4,0,.2,1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  #sidebar.mob-collapsed { height: 44px !important; }
+  #sidebar.mob-expanded  { height: 85vh !important; }
+  #drag-handle {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    padding: 7px 0 5px;
+    cursor: grab;
+    touch-action: none;
+    flex-shrink: 0;
+    background: #fff;
+  }
+  #drag-handle::before {
+    content: '';
+    display: block;
+    width: 44px; height: 5px;
+    background: #bbb;
+    border-radius: 3px;
+  }
+  #mob-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 1100;
+    background: #1a3a5c;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    width: 42px; height: 42px;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+  }
+  #sidebar-header { padding: 8px 14px 6px; }
+  #sidebar-header h1 { font-size: 12px; }
+  #controls { padding: 8px 12px; }
+  #school-list-wrap { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+}
+@media (min-width: 769px) {
+  #drag-handle { display: none; }
+  #mob-toggle  { display: none; }
+}
+
 /* ── 인쇄(출력) ── */
 @media print {
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -96,8 +162,10 @@ body{font-family:'Malgun Gothic',sans-serif;background:#f0f2f5;}
 </style>
 </head>
 <body>
+<button id="mob-toggle" style="display:none;" onclick="mobToggle()" title="패널 열기/닫기">☰</button>
 <div id="container">
   <div id="sidebar">
+    <div id="drag-handle" style="display:none;"></div>
     <div id="sidebar-header">
       <h1>📍 포항 학교 위치 지도<br>경상북도교육청 안전진단</h1>
       <div class="sub">점검기간: 2026. 6/22(월) ~ 7/10(금)</div>
@@ -642,6 +710,67 @@ map.on('zoomend', function(){
   if(map.getZoom() >= 14){ mapEl.classList.add('zoom-labels'); }
   else { mapEl.classList.remove('zoom-labels'); }
 });
+
+// ── 모바일 바텀시트 드래그 & 토글 ──────────────────────────
+(function(){
+  if(window.innerWidth > 768) return;
+
+  const sidebar = document.getElementById('sidebar');
+  const handle  = document.getElementById('drag-handle');
+  const toggle  = document.getElementById('mob-toggle');
+
+  let startY = 0, startH = 0, dragging = false;
+  const WH = () => window.innerHeight;
+  const SNAP_COLLAPSED = 44;
+  const SNAP_HALF      = () => Math.round(WH() * 0.45);
+  const SNAP_FULL      = () => Math.round(WH() * 0.85);
+
+  function setH(h, animate) {
+    sidebar.style.transition = animate ? 'height 0.28s cubic-bezier(.4,0,.2,1)' : 'none';
+    sidebar.style.height = h + 'px';
+    setTimeout(() => map.invalidateSize(), animate ? 300 : 0);
+  }
+
+  function snap(h) {
+    const wh = WH();
+    const dCollapsed = Math.abs(h - SNAP_COLLAPSED);
+    const dHalf      = Math.abs(h - SNAP_HALF());
+    const dFull      = Math.abs(h - SNAP_FULL());
+    const min = Math.min(dCollapsed, dHalf, dFull);
+    if(min === dCollapsed) setH(SNAP_COLLAPSED, true);
+    else if(min === dHalf) setH(SNAP_HALF(), true);
+    else                   setH(SNAP_FULL(), true);
+  }
+
+  handle.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY;
+    startH = sidebar.offsetHeight;
+    dragging = true;
+    sidebar.style.transition = 'none';
+  }, {passive: true});
+
+  window.addEventListener('touchmove', e => {
+    if(!dragging) return;
+    const dy  = startY - e.touches[0].clientY;
+    const newH = Math.min(Math.max(startH + dy, SNAP_COLLAPSED), SNAP_FULL());
+    sidebar.style.height = newH + 'px';
+  }, {passive: true});
+
+  window.addEventListener('touchend', () => {
+    if(!dragging) return;
+    dragging = false;
+    snap(sidebar.offsetHeight);
+  });
+
+  window.mobToggle = function() {
+    const h = sidebar.offsetHeight;
+    if(h <= SNAP_COLLAPSED + 10) setH(SNAP_HALF(), true);
+    else                          setH(SNAP_COLLAPSED, true);
+  };
+
+  // 초기 지도 크기 보정
+  setTimeout(() => map.invalidateSize(), 100);
+})();
 </script>
 </body>
 </html>
